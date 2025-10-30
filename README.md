@@ -1,7 +1,5 @@
 # Building ML Pipelines with KitOps and Vertex AI
 
-## Executive Summary
-
 This guide demonstrates how to combine KitOps, an open-source ML packaging tool, with Google Cloud's Vertex AI Pipelines to create robust, reproducible, and production-ready machine learning workflows. By leveraging KitOps' standardized ModelKit packaging with Vertex AI's serverless pipeline execution, teams can achieve seamless collaboration between data scientists, developers, and platform engineers.
 
 ## Table of Contents
@@ -23,41 +21,8 @@ This guide demonstrates how to combine KitOps, an open-source ML packaging tool,
 
 ### The Integration Flow
 
-```
-┌─────────────────┐
-│  Data Scientist │
-│   Development   │
-└────────┬────────┘
-         │
-         │ 1. Create Kitfile
-         │ 2. Pack ModelKit
-         ▼
-┌─────────────────┐
-│    KitOps CLI   │
-│  (ModelKit)     │
-└────────┬────────┘
-         │
-         │ 3. Push to Registry
-         ▼
-┌─────────────────┐
-│  OCI Registry   │
-│ (Artifact Reg)  │
-└────────┬────────┘
-         │
-         │ 4. Pull in Pipeline
-         ▼
-┌─────────────────┐
-│  Vertex AI      │
-│  Pipelines      │
-└────────┬────────┘
-         │
-         │ 5. Deploy/Serve
-         ▼
-┌─────────────────┐
-│ Vertex AI       │
-│ Endpoints       │
-└─────────────────┘
-```
+<img width="1024" height="1024" alt="diagram" src="https://github.com/user-attachments/assets/d68163f9-31cb-4253-8c1a-65e3e3d79164" />
+
 
 ### Key Benefits
 
@@ -1632,7 +1597,7 @@ kit unpack ${MODELKIT_URI} -d ./output --verbose
 
 #### Issue 5: Vertex AI Permission Errors
 
-**Symptom**: "Permission denied" when running pipeline
+**Symptom**: "Permission denied" when running the pipeline
 
 **Solution**:
 ```bash
@@ -1816,8 +1781,6 @@ gcloud ai endpoints deploy-model <endpoint-id> \
 
 ---
 
-## Conclusion
-
 By combining KitOps' standardized packaging with Vertex AI's powerful pipeline orchestration, teams can build production-grade ML workflows that are:
 
 - **Reproducible**: Immutable ModelKits ensure consistency
@@ -1826,4 +1789,3 @@ By combining KitOps' standardized packaging with Vertex AI's powerful pipeline o
 - **Auditable**: Complete lineage tracking for compliance
 - **Automated**: CI/CD integration enables continuous ML delivery
 
-Start with the basic pipeline examples in this guide and gradually adopt advanced patterns as your needs grow. The combination of these tools provides a robust foundation for enterprise ML operations.
