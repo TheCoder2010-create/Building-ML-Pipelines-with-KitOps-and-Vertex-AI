@@ -345,10 +345,9 @@ ls -la ./unpacked
 
 ### Pipeline Architecture
 
-```
-<img width="816" height="510" alt="vertex ai pipline " src="https://github.com/user-attachments/assets/88f21763-a039-462c-a70a-81aa6fb07ed4" />
+<img width="816" height="510" alt="vertex ai pipline " src="https://github.com/user-attachments/assets/28120cf6-4b1d-43a1-8c0d-c0bc7e1757a5" />
 
-```
+
 
 ### Example 1: Basic Training Pipeline
 
