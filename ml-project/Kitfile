@@ -1,0 +1,44 @@
+manifestVersion: v1.0
+
+package:
+  name: sentiment-classifier
+  version: 1.0.0
+  description: BERT-based sentiment classification model
+  authors:
+    - name: ML Team
+      email: ml-team@company.com
+  license: Apache-2.0
+
+model:
+  name: bert-sentiment
+  path: ./models/model.pkl
+  framework: scikit-learn
+  version: 1.0.0
+  description: Fine-tuned BERT for sentiment analysis
+
+code:
+  - path: ./src/train.py
+    description: Training script
+  - path: ./src/predict.py
+    description: Inference script
+  - path: ./src/requirements.txt
+    description: Python dependencies
+
+datasets:
+  - name: training_data
+    path: ./data/train.csv
+    description: 50k labeled reviews for training
+  
+  - name: validation_data
+    path: ./data/validation.csv
+    description: 10k labeled reviews for validation
+
+config:
+  - path: ./config/hyperparameters.yaml
+    description: Model hyperparameters and training config
+
+docs:
+  - path: ./docs/README.md
+    description: Model documentation
+  - path: ./docs/model_card.md
+    description: Model card with performance metrics

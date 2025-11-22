@@ -1,0 +1,4 @@
+google-cloud-aiplatform==1.59.0
+kfp==2.7.0
+google-cloud-pipeline-components==2.14.0
+pykitops
