@@ -1,0 +1,51 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  REGION: us-central1
+  MODELKIT_REGISTRY: ${REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/ml-modelkits
+
+before_script:
+  - echo $GCP_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+  - gcloud config set project $GCP_PROJECT_ID
+
+build_modelkit:
+  stage: build
+  image: google/cloud-sdk:latest
+  script:
+    - curl -L https://github.com/kitops-ml/kitops/releases/latest/download/kitops-linux-x86_64.tar.gz | tar -xz
+    - mv kit /usr/local/bin/
+    - gcloud auth configure-docker ${REGION}-docker.pkg.dev
+    - |
+      VERSION=$(cat version.txt)
+      MODELKIT_URI="${MODELKIT_REGISTRY}/sentiment-classifier:${VERSION}"
+      kit pack . -t $MODELKIT_URI
+      kit push $MODELKIT_URI
+      echo "MODELKIT_URI=$MODELKIT_URI" > modelkit.env
+  artifacts:
+    reports:
+      dotenv: modelkit.env
+
+test_modelkit:
+  stage: test
+  image: python:3.9
+  dependencies:
+    - build_modelkit
+  script:
+    - pip install pytest pykitops google-cloud-aiplatform
+    - kit pull $MODELKIT_URI
+    - kit unpack $MODELKIT_URI -d ./test_env
+    - pytest tests/ -v
+
+deploy_pipeline:
+  stage: deploy
+  image: python:3.9
+  dependencies:
+    - build_modelkit
+  script:
+    - pip install google-cloud-aiplatform kfp
+    - python scripts/deploy_pipeline.py --modelkit-uri $MODELKIT_URI
+  only:
+    - main
