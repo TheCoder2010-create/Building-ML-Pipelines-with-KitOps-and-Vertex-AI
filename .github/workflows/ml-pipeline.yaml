@@ -1,0 +1,89 @@
+name: ML Pipeline with KitOps
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'models/**'
+      - 'data/**'
+      - 'Kitfile'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  MODELKIT_NAME: sentiment-classifier
+
+jobs:
+  build-and-push-modelkit:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Install Kit CLI
+        run: |
+          curl -L https://github.com/kitops-ml/kitops/releases/latest/download/kitops-linux-x86_64.tar.gz | tar -xz
+          sudo mv kit /usr/local/bin/
+          kit version
+      
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${REGION}-docker.pkg.dev
+      
+      - name: Build and push ModelKit
+        run: |
+          VERSION=$(cat version.txt)
+          MODELKIT_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/ml-modelkits/${MODELKIT_NAME}:${VERSION}"
+          
+          kit pack . -t $MODELKIT_URI
+          kit push $MODELKIT_URI
+          
+          echo "MODELKIT_URI=$MODELKIT_URI" >> $GITHUB_ENV
+      
+      - name: Trigger Vertex AI Pipeline
+        run: |
+          python -m pip install google-cloud-aiplatform kfp
+          python scripts/trigger_pipeline.py \
+            --project-id $PROJECT_ID \
+            --region $REGION \
+            --modelkit-uri $MODELKIT_URI
+
+  run-tests:
+    needs: build-and-push-modelkit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+      
+      - name: Run model validation tests
+        run: |
+          python -m pip install pytest pykitops
+          pytest tests/model_validation/ -v
+      
+      - name: Check pipeline status
+        run: |
+          python scripts/check_pipeline_status.py \
+            --project-id $PROJECT_ID \
+            --region $REGION
