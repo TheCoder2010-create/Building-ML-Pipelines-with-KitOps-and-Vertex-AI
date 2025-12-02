@@ -27,7 +27,7 @@ pipeline {
         stage('Build ModelKit') {
             steps {
                 script {
-                    def version = readFile('version.txt').trim()
+                    def version = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     env.MODELKIT_URI = "${REGION}-docker.pkg.dev/${PROJECT_ID}/ml-modelkits/${MODELKIT_NAME}:${version}"
                     
                     sh """
