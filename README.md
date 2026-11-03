@@ -1,5 +1,7 @@
 # Building ML Pipelines with KitOps and Vertex AI
 
+[![Packaged with KitOps](https://img.shields.io/badge/Packaged%20with-KitOps-FFAF52?labelColor=363636)](https://kitops.org)
+
 This guide demonstrates how to combine KitOps, an open-source ML packaging tool, with Google Cloud's Vertex AI Pipelines to create robust, reproducible, and production-ready machine learning workflows. By leveraging KitOps' standardized ModelKit packaging with Vertex AI's serverless pipeline execution, teams can achieve seamless collaboration between data scientists, developers, and platform engineers.
 
 ## Table of Contents
